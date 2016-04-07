@@ -1,0 +1,218 @@
+# this is an example of the Uber API
+# as a demonstration of an API spec in YAML
+swagger: '2.0'
+info:
+  title: User Center
+  description: 用户中心API
+  version: "1.0.0"
+# the domain of the service
+host: uc.local.com
+# array of all schemes that your API supports
+schemes:
+  - https
+# will be prefixed to all paths
+basePath: /v1
+produces:
+  - application/json
+paths:
+  /passworld/reset:
+    post:
+      summary: 重置密码
+      description: 用户重新设置密码, 清楚所有客户端的hash.
+      parameters:
+        - name: passworld
+          in: formData
+          description: 新密码
+          required: true
+          type: string
+          format: string
+        - name: password_confirmation
+          in: formData
+          description: 新密码的再次输入的验证
+          required: true
+          type: string
+          format: string
+        - name: token
+          in: formData
+          description: 凭证, 允许其修改密码的凭证. 或者的来源有, 输入原来的密码, 邮箱, 手机短信等.
+          required: true
+          type: string
+          format: string
+        - name: time
+          in: formData
+          description: 请求的时间戳, 用于生成 sign 签名
+          required: true
+          type: integer
+          format: int32
+        - name: sign
+          in: formData
+          description: 签名
+          required: true
+          type: string
+          format: string
+        - name: app_key
+          in: formData
+          description: 接口调用者的 APP_KEY
+          required: true
+          type: string
+          format: string
+      tags:
+        - Passworld
+      responses:
+        200:
+          description: 服务器的响应.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/Response'
+
+  /passworld/get_reset_token_from_email:
+    get:
+      summary: 通过 email 找回密码
+      description: 发送一封含有找回密码的链接的邮件, 链接带有 token, token 存放在 redis, 有超时, 里面的值是用户的ID 比如, email_$token
+      parameters:
+        - name: email
+          in: formData
+          description: 用户绑定的email
+          required: true
+          type: string
+          format: string
+        - name: time
+          in: formData
+          description: 请求的时间戳, 用于生成 sign 签名
+          required: true
+          type: integer
+          format: int32
+        - name: sign
+          in: formData
+          description: 签名
+          required: true
+          type: string
+          format: string
+        - name: app_key
+          in: formData
+          description: 接口调用者的 APP_KEY
+          required: true
+          type: string
+          format: string
+      tags:
+        - Passworld
+      responses:
+        200:
+          description: 服务器的响应.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/Response'
+
+  /passworld/get_reset_token_from_tel:
+    get:
+      summary: 通过 tel 找回密码
+      description: 发送一条含有 token 的短信, token 存放在 redis, 有超时, 里面的值是用户的ID 比如, tel_$token
+      parameters:
+        - name: tel
+          in: formData
+          description: 用户绑定的手机号码
+          required: true
+          type: integer
+          format: int32
+        - name: time
+          in: formData
+          description: 请求的时间戳, 用于生成 sign 签名
+          required: true
+          type: integer
+          format: int32
+        - name: sign
+          in: formData
+          description: 签名
+          required: true
+          type: string
+          format: string
+        - name: app_key
+          in: formData
+          description: 接口调用者的 APP_KEY
+          required: true
+          type: string
+          format: string
+      tags:
+        - Passworld
+      responses:
+        200:
+          description: 服务器的响应.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/Response'
+
+  /passworld/get_reset_token_from_passworld:
+    get:
+      summary: 通过 tel 找回密码
+      description: 发送一条含有 token 的短信, token 存放在 redis, 有超时, 里面的值是用户的ID 比如, tel_$token
+      parameters:
+        - name: hash
+          in: query
+          description: 登录验证后得到的hash
+          required: true
+          type: string
+          format: string
+        - name: passworld
+          in: formData
+          description: 账号原来的密码
+          required: true
+          type: string
+          format: string
+        - name: time
+          in: formData
+          description: 请求的时间戳, 用于生成 sign 签名
+          required: true
+          type: integer
+          format: int32
+        - name: sign
+          in: formData
+          description: 签名
+          required: true
+          type: string
+          format: string
+        - name: app_key
+          in: formData
+          description: 接口调用者的 APP_KEY
+          required: true
+          type: string
+          format: string
+      tags:
+        - Passworld
+      responses:
+        200:
+          description: 服务器的响应.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/Response'
+
+definitions:
+  Data:
+    type: object
+
+  Response:
+    type: object
+    properties:
+      data:
+        type: object
+        description: 响应的数据
+        items:
+          $ref: '#/definitions/Data'
+      error:
+        type: object
+        items:
+          $ref: '#/definitions/Error'
+
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string
