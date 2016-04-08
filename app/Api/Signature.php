@@ -23,7 +23,7 @@ class Signature
             return true;
         }
 
-        throw new Exception("sign 不正确", 1);
+        throw new Exception(IHelper::code_message(8), 8);
 
     }
 

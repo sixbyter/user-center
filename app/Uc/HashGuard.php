@@ -9,7 +9,7 @@ use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Http\Request;
 use Log;
 
-class UcGuard implements Guard
+class HashGuard implements Guard
 {
     use GuardHelpers;
 
@@ -41,11 +41,11 @@ class UcGuard implements Guard
      * @param  \Illuminate\Http\Request  $request
      * @return void
      */
-    public function __construct(UserProvider $provider, Request $request, UcHashStorage $uc_hash_storage)
+    public function __construct(UserProvider $provider, Request $request, DatabaseHashProvider $hash_provider)
     {
         $this->request         = $request;
         $this->provider        = $provider;
-        $this->uc_hash_storage = $uc_hash_storage;
+        $this->hash_provider = $hash_provider;
         $this->inputKey        = 'hash';
         $this->storageKey      = 'hash';
     }
@@ -77,7 +77,7 @@ class UcGuard implements Guard
         $token  = $this->getHashForRequest();
         $app_id = $this->getAppId();
         if (!empty($token)) {
-            return $this->uc_hash_storage->get($token, $app_id);
+            return $this->hash_provider->get($token, $app_id);
         }
         return null;
     }
@@ -86,7 +86,7 @@ class UcGuard implements Guard
     {
         $hash   = $this->getHashUniqueKey();
         $app_id = $this->getAppId();
-        $this->uc_hash_storage->put(
+        $this->hash_provider->put(
             $hash,
             $app_id,
             $user->getAuthIdentifier(),
@@ -101,11 +101,20 @@ class UcGuard implements Guard
     public function logout()
     {
 
-        $token  = $this->getHashForRequest();
-        $app_id = $this->getAppId();
-        $this->uc_hash_storage->forget($token, $app_id);
+        $user = $this->user();
+
+        if ($user !== null) {
+            $thi->clearUserHash();
+        }
 
         $this->user = null;
+    }
+
+    public function clearUserHash()
+    {
+        $token  = $this->getHashForRequest();
+        $app_id = $this->getAppId();
+        $this->hash_provider->forget($token, $app_id);
     }
 
     public function setUser(AuthenticatableContract $user)

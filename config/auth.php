@@ -47,8 +47,8 @@ return [
         ],
 
         'uc'  => [
-            'driver'   => 'uc',
-            'provider' => 'uc',
+            'driver'   => 'hash',
+            'provider' => 'users',
         ],
     ],
 
@@ -71,11 +71,6 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'eloquent',
-            'model'  => App\User::class,
-        ],
-
-        'uc'    => [
             'driver' => 'eloquent',
             'model'  => App\User::class,
         ],

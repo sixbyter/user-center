@@ -2,9 +2,10 @@
 
 namespace App\Uc;
 
-use App\Uc\UcGuard;
+use App\Uc\HashGuard;
 use Auth;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Auth\EloquentUserProvider;
 
 class UcServiceProvider extends ServiceProvider
 {
@@ -17,16 +18,16 @@ class UcServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Auth::extend('uc', function ($app, $name, $config) {
+        Auth::extend('hash', function ($app, $name, $config) {
 
             $provider_config = $app['config']['auth.providers.' . $config['provider']];
 
-            $uc_hash_storage = new UcHashStorage($app['db']->connection());
+            $hash_provider = new DatabaseHashProvider($app['db']->connection());
 
-            $guard = new UcGuard(
-                new UcUserProvider($app['hash'], $provider_config['model']),
+            $guard = new HashGuard(
+                new EloquentUserProvider($app['hash'], $provider_config['model']),
                 $this->app['request'],
-                $uc_hash_storage
+                $hash_provider
             );
 
             $this->app->refresh('request', $guard, 'setRequest');

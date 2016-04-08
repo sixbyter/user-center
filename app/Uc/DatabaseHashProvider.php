@@ -4,7 +4,7 @@ namespace App\Uc;
 
 use Illuminate\Database\ConnectionInterface;
 
-class UcHashStorage implements UcHashStorageContract
+class DatabaseHashProvider
 {
     protected $table;
 
@@ -34,7 +34,7 @@ class UcHashStorage implements UcHashStorageContract
             return null;
         }
         if (strtotime($record->ttl_at) < time()) {
-            $this->forget($key);
+            $this->forget($key, $app_id);
             return null;
         }
         return $record->user_id;
@@ -67,7 +67,7 @@ class UcHashStorage implements UcHashStorageContract
                 ->update([
                     'hash'   => $key,
                     'app_id' => $app_id,
-                    'ttl_at' => date('Y-m-d H:i:s'),
+                    'ttl_at' => date('Y-m-d H:i:s', $ttl_at),
                 ]);
         }
         return $this->conn
@@ -76,7 +76,7 @@ class UcHashStorage implements UcHashStorageContract
                 'user_id' => $value,
                 'hash'    => $key,
                 'app_id'  => $app_id,
-                'ttl_at'  => date('Y-m-d H:i:s'),
+                'ttl_at'  => date('Y-m-d H:i:s', $ttl_at),
             ]);
     }
 

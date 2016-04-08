@@ -11,15 +11,15 @@ class ExampleTest extends TestCase
      *
      * @return void
      */
-    public function testBasicExample()
-    {
-        $this->visit('/')
-             ->see('Laravel 5');
-    }
+    // public function testBasicExample()
+    // {
+    //     $this->visit('/')
+    //          ->see('Laravel 5');
+    // }
 
-    public function testBasic2()
-    {
-        $this->visit('/')
-             ->see('Laravel');
-    }
+    // public function testBasic2()
+    // {
+    //     $this->visit('/')
+    //          ->see('Laravel');
+    // }
 }

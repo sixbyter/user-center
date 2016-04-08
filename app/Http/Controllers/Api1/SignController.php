@@ -39,7 +39,7 @@ class SignController extends ApiController
         ];
         $hash = Auth::attempt($credentials);
         if ($hash) {
-            return response()->json(IHelper::response(200, '登录成功!', compact('hash')));
+            return response()->json(IHelper::response(0, '登录成功!', compact('hash')));
         }
 
         return response()->json(IHelper::response(6, IHelper::code_message(6)));
@@ -48,8 +48,8 @@ class SignController extends ApiController
 
     public function out(Request $request)
     {
-        echo "sign out";
-        dd(Auth::user());
+        Auth::logout();
+        return response()->json(IHelper::response(0, '账号已退出登录.'));
     }
 
     public function up(Request $request)
@@ -87,7 +87,7 @@ class SignController extends ApiController
 
         $hash = Auth::login($user);
 
-        return response()->json(IHelper::response(200, '注册成功!', compact('hash')));
+        return response()->json(IHelper::response(0, '注册成功!', compact('hash')));
 
         // 触发一个任务, 负责验证用户的邮箱或者手机号码.
 
