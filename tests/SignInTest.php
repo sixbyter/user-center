@@ -42,12 +42,13 @@ class SignInTest extends TestCase
                 'error' => [
                     'code', 'message',
                 ],
-            ])->seeJson([
-            'error' => [
-                'code'    => 0,
-                'message' => '登录成功!',
-            ],
-        ]);
+            ])
+            ->seeJson([
+                'error' => [
+                    'code'    => 0,
+                    'message' => '登录成功!',
+                ],
+            ]);
     }
 
     protected function errorValidate()

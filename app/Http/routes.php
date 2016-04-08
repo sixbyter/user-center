@@ -33,7 +33,7 @@ Route::group(['middleware' => ['api'], 'prefix' => 'api1'], function () {
         dd(Auth::user());
     }]);
 
-    Route::post('/sign/out', [
+    Route::get('/sign/out', [
         'as'   => 'api1.sigin.out',
         'uses' => 'Api1\SignController@out',
     ]);

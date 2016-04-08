@@ -60,7 +60,7 @@ class SignController extends ApiController
         $validator = Validator::make($input, [
             'account'  => 'required|account|account_unique',
             'password' => 'required|min:6|confirmed',
-            'nickname' => 'required|max:255',
+            'nickname' => 'required|max:50',
         ]);
 
         if ($validator->fails()) {

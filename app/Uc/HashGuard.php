@@ -43,11 +43,11 @@ class HashGuard implements Guard
      */
     public function __construct(UserProvider $provider, Request $request, DatabaseHashProvider $hash_provider)
     {
-        $this->request         = $request;
-        $this->provider        = $provider;
+        $this->request       = $request;
+        $this->provider      = $provider;
         $this->hash_provider = $hash_provider;
-        $this->inputKey        = 'hash';
-        $this->storageKey      = 'hash';
+        $this->inputKey      = 'hash';
+        $this->storageKey    = 'hash';
     }
 
     /**
@@ -104,7 +104,7 @@ class HashGuard implements Guard
         $user = $this->user();
 
         if ($user !== null) {
-            $thi->clearUserHash();
+            $this->clearUserHash();
         }
 
         $this->user = null;
