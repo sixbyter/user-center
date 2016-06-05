@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Uc;
+namespace App\Libraries\LoginHashes\Contracts;
 
-interface UcHashStorageContract
+interface LoginHashesRepository
 {
     /**
      * Retrieve an item from the hash by key.

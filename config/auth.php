@@ -14,8 +14,8 @@ return [
      */
 
     'defaults'  => [
-        'guard'     => 'uc',
-        'passwords' => 'users',
+        'guard'     => 'api',
+        'passwords' => 'email',
     ],
 
     /*
@@ -36,18 +36,23 @@ return [
      */
 
     'guards'    => [
+        // 'web' => [
+        //     'driver'   => 'session',
+        //     'provider' => 'users',
+        // ],
+
+        // 'api'  => [
+        //     'driver'   => 'token',
+        //     'provider' => 'users',
+        // ],
+
         'web' => [
-            'driver'   => 'session',
+            'driver'   => 'login_hashes_session',
             'provider' => 'users',
         ],
 
         'api' => [
-            'driver'   => 'token',
-            'provider' => 'users',
-        ],
-
-        'uc'  => [
-            'driver'   => 'hash',
+            'driver'   => 'login_hashes',
             'provider' => 'users',
         ],
     ],
@@ -101,12 +106,23 @@ return [
      */
 
     'passwords' => [
-        'users' => [
+        'email' => [
             'provider' => 'users',
             'email'    => 'auth.emails.password',
             'table'    => 'password_resets',
             'expire'   => 60,
+            'driver'   => 'email',
         ],
+        'oldpassword' => [
+            'provider' => 'users',
+            'table'    => 'password_resets',
+            'expire'   => 60,
+            'driver'   => 'oldpassword',
+        ],
+    ],
+
+    'myapp'     => [
+        'id' => 2,
     ],
 
 ];

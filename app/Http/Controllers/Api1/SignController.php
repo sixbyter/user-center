@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api1;
 
-use App\Api\IHelper;
+use App\Libraries\Api\IHelper;
 use App\Http\Controllers\ApiController;
 use App\User;
 use Auth;
@@ -15,7 +15,7 @@ class SignController extends ApiController
 
     public function __construct()
     {
-        $this->middleware('auth:uc', ['only' => 'out']);
+        $this->middleware('auth:api', ['only' => 'out']);
     }
 
     public function in(Request $request)
@@ -37,7 +37,7 @@ class SignController extends ApiController
             $account_flag => $request->input('account'),
             'password'    => $request->input('password'),
         ];
-        $hash = Auth::attempt($credentials);
+        $hash = Auth::guard('api')->attempt($credentials);
         if ($hash) {
             return response()->json(IHelper::response(0, '登录成功!', compact('hash')));
         }
@@ -48,7 +48,7 @@ class SignController extends ApiController
 
     public function out(Request $request)
     {
-        Auth::logout();
+        Auth::guard('api')->logout();
         return response()->json(IHelper::response(0, '账号已退出登录.'));
     }
 
@@ -85,7 +85,7 @@ class SignController extends ApiController
             return response()->json(IHelper::response(3, IHelper::code_message(3)));
         }
 
-        $hash = Auth::login($user);
+        $hash = Auth::guard('api')->login($user);
 
         return response()->json(IHelper::response(0, '注册成功!', compact('hash')));
 

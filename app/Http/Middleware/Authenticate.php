@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Api\IHelper;
+use App\Libraries\Api\IHelper;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 

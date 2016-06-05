@@ -3,20 +3,24 @@
 namespace App;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Libraries\LoginHashes\Passwords\CanResetPasswordAdd;
 
 class User extends Authenticatable
 {
+
+    use CanResetPasswordAdd;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'email', 'password', 'tel',
+        'tel', 'email', 'password',
     ];
 
     /**
-     * The attributes excluded from the model's JSON form.
+     * The attributes that should be hidden for arrays.
      *
      * @var array
      */
@@ -27,4 +31,3 @@ class User extends Authenticatable
     public $incrementing = false;
 }
 
-?>

@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Uc;
+namespace App\Libraries\LoginHashes;
 
+use App\Libraries\LoginHashes\Contracts\AppRepository;
+use App\Libraries\LoginHashes\Contracts\LoginHashesRepository;
 use Illuminate\Auth\GuardHelpers;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Guard;
@@ -9,7 +11,7 @@ use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Http\Request;
 use Log;
 
-class HashGuard implements Guard
+class LoginHashesGuard implements Guard
 {
     use GuardHelpers;
 
@@ -27,12 +29,7 @@ class HashGuard implements Guard
      */
     protected $inputKey;
 
-    /**
-     * The name of the token "column" in persistent storage.
-     *
-     * @var string
-     */
-    protected $storageKey;
+    protected $hashRepository;
 
     /**
      * Create a new authentication guard.
@@ -41,13 +38,14 @@ class HashGuard implements Guard
      * @param  \Illuminate\Http\Request  $request
      * @return void
      */
-    public function __construct(UserProvider $provider, Request $request, DatabaseHashProvider $hash_provider)
+    public function __construct(UserProvider $provider, Request $request, LoginHashesRepository $hashRepository, AppRepository $appRepository)
     {
-        $this->request       = $request;
-        $this->provider      = $provider;
-        $this->hash_provider = $hash_provider;
-        $this->inputKey      = 'hash';
-        $this->storageKey    = 'hash';
+        $this->request        = $request;
+        $this->provider       = $provider;
+        $this->hashRepository = $hashRepository;
+        $this->inputKey       = 'hash';
+        $this->appRepository  = $appRepository;
+
     }
 
     /**
@@ -74,10 +72,10 @@ class HashGuard implements Guard
 
     public function getIdForHash()
     {
-        $token  = $this->getHashForRequest();
+        $hash   = $this->getHashForRequest();
         $app_id = $this->getAppId();
-        if (!empty($token)) {
-            return $this->hash_provider->get($token, $app_id);
+        if (!empty($hash)) {
+            return $this->hashRepository->get($hash, $app_id);
         }
         return null;
     }
@@ -86,7 +84,7 @@ class HashGuard implements Guard
     {
         $hash   = $this->getHashUniqueKey();
         $app_id = $this->getAppId();
-        $this->hash_provider->put(
+        $this->hashRepository->put(
             $hash,
             $app_id,
             $user->getAuthIdentifier(),
@@ -114,7 +112,7 @@ class HashGuard implements Guard
     {
         $token  = $this->getHashForRequest();
         $app_id = $this->getAppId();
-        $this->hash_provider->forget($token, $app_id);
+        $this->hashRepository->forget($token, $app_id);
     }
 
     public function setUser(AuthenticatableContract $user)
@@ -140,7 +138,7 @@ class HashGuard implements Guard
 
     protected function getAppId()
     {
-        return $this->request->authApp->id;
+        return $this->appRepository->loginHashesAppId();
     }
 
     /**

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Uc;
+namespace App\Libraries\LoginHashes;
 
+use App\Libraries\LoginHashes\Contracts\LoginHashesRepository;
 use Illuminate\Database\ConnectionInterface;
 
-class DatabaseHashProvider
+class DatabaseLoginHashesRepository implements LoginHashesRepository
 {
     protected $table;
 
@@ -64,6 +65,7 @@ class DatabaseHashProvider
             return $this->conn
                 ->table($this->table)
                 ->where('user_id', $value)
+                ->where('app_id', '=', $app_id)
                 ->update([
                     'hash'   => $key,
                     'app_id' => $app_id,

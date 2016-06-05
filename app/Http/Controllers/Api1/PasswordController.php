@@ -1,20 +1,22 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Api1;
 
-use App\Http\Controllers\Controller;
+use App\Libraries\Api\IHelper;
+use App\Http\Controllers\ApiController;
 use App\Libraries\LoginHashes\Passwords\EmailForgot;
 use App\Libraries\LoginHashes\Passwords\TelForgot;
 use Auth;
 use Illuminate\Http\Request;
 use Password;
+use Validator;
 
-class PasswordController extends Controller
+class PasswordController extends ApiController
 {
 
     use EmailForgot, TelForgot;
 
-    protected $guard = 'web';
+    protected $guard = 'api';
 
     /*
     |--------------------------------------------------------------------------
@@ -34,68 +36,36 @@ class PasswordController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:' . $this->getGuard(), ['only' => ['getVerifyOldPassWord', 'postVerifyOldPassWord']]);
+        // $this->middleware('auth:' . $this->getGuard(), ['only' => ['getVerifyOldPassWord', 'postVerifyOldPassWord']]);
+        $this->middleware('auth:' . $this->getGuard(), ['only' => ['oldPassWord']]);
     }
 
-    public function getVerifyOldPassWord(Request $request)
-    {
-        return view('auth.passwords.verifyoldpassword');
-    }
-
-    public function postVerifyOldPassWord(Request $request)
+    public function oldPassWord(Request $request)
     {
         // 限制尝试次数
-        $this->validate($request, [
+
+        $validator = Validator::make($request->input(), [
             'password' => 'required|min:6',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(IHelper::response(
+                5,
+                IHelper::code_message(5) . ': ' . $validator->errors()->first()
+            ));
+        }
 
         $user = Auth::guard($this->getGuard())->user();
 
         $broker = $this->getBroker('oldpassword');
 
         if (!$broker->checkOldPassword($user, $request->input('password'))) {
-            return redirect()->back()->withErrors(['password' => 'password wrong']);
+            return response()->json(IHelper::response(9, IHelper::code_message(9)));
         };
 
         $token = Password::broker('oldpassword')->setResetToken($user);
 
-        return redirect('password/reset/' . 'oldpassword/' . $token);
-    }
-
-    public function showResetForm(Request $request, $from)
-    {
-        $froms = array_keys(app('config')['auth']['passwords']);
-
-        if (!in_array($from, $froms)) {
-            return 'inval from';
-        }
-
-        $broker = $this->getBroker($from);
-
-        $credentials = $request->only('token', 'email', 'tel');
-
-        $user = $broker->getUser($credentials);
-
-        $token = $credentials['token'];
-
-        if (!$user) {
-            return 'inval token';
-        }
-
-        return view('auth.passwords.reset')->with(compact('token', 'from', 'user'));
-    }
-
-    public function showForgotForm(Request $request)
-    {
-        if (property_exists($this, 'linkRequestView')) {
-            return view($this->linkRequestView);
-        }
-
-        if (view()->exists('auth.passwords.forgot')) {
-            return view('auth.passwords.forgot');
-        }
-
-        return view('auth.password');
+        return response()->json(IHelper::response(0, '验证正确!', compact('token')));
     }
 
     public function forgot(Request $request)
@@ -111,11 +81,20 @@ class PasswordController extends Controller
         }
     }
 
-    public function redirectPath()
+    protected function getSendResetLinkEmailSuccessResponse($response)
     {
-        Auth::guard($this->getGuard())->logout();
+        return response()->json(IHelper::response(0, 'token邮件已发送, 请查收.'));
+    }
 
-        return '/login';
+    /**
+     * Get the response for after the reset link could not be sent.
+     *
+     * @param  string  $response
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function getSendResetLinkEmailFailureResponse($response)
+    {
+        return response()->json(IHelper::response(10, IHelper::code_message(10)));
     }
 
     /**
@@ -126,8 +105,16 @@ class PasswordController extends Controller
      */
     public function reset(Request $request)
     {
+        $rules = $this->getResetValidationRules($request);
 
-        $this->validate($request, $this->getResetValidationRules());
+        $validator = Validator::make($request->input(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(IHelper::response(
+                5,
+                IHelper::code_message(5) . ': ' . $validator->errors()->first()
+            ));
+        }
 
         $credentials = $this->getCredentials($request);
 
@@ -171,7 +158,7 @@ class PasswordController extends Controller
      *
      * @return array
      */
-    protected function getResetValidationRules()
+    protected function getResetValidationRules(Request $request)
     {
         $froms = array_keys(app('config')['auth']['passwords']);
 
@@ -180,6 +167,10 @@ class PasswordController extends Controller
             'password' => 'required|confirmed|min:6',
             'from'     => 'required|in:' . implode(',', $froms),
         ];
+
+        if ($request->input('from') === 'email') {
+            # code...
+        }
 
         return $rules;
     }
@@ -217,7 +208,7 @@ class PasswordController extends Controller
      */
     protected function getResetSuccessResponse($response)
     {
-        return redirect($this->redirectPath())->with('status', trans($response));
+        return response()->json(IHelper::response(0, '密码修改成功'));
     }
 
     /**
@@ -229,8 +220,7 @@ class PasswordController extends Controller
      */
     protected function getResetFailureResponse(Request $request, $response)
     {
-        return redirect()->back()
-            ->withErrors(['status' => trans($response)]);
+        return response()->json(IHelper::response(11, IHelper::code_message(11) . $response));
     }
 
     /**

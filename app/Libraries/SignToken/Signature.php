@@ -1,14 +1,17 @@
 <?php
-namespace App\Api;
+namespace App\Libraries\SignToken;
 
-use App\Api\IHelper;
+use App\Libraries\Api\IHelper;
 use Exception;
 
 class Signature
 {
 
-    public static function check($sign, $arr, $app_secret)
+    public static function check($sign, $arr, $app_secret, $debug = false)
     {
+        if ($debug === true) {
+            return true;
+        }
         // 验证 app_key 是否合法
         if (!isset($arr['app_key'])) {
             throw new Exception(IHelper::code_message(1), 1);

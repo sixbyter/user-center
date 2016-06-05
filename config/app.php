@@ -142,7 +142,7 @@ return [
         Illuminate\Pipeline\PipelineServiceProvider::class,
         Illuminate\Queue\QueueServiceProvider::class,
         Illuminate\Redis\RedisServiceProvider::class,
-        Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
+        // Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
         Illuminate\Session\SessionServiceProvider::class,
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
@@ -155,7 +155,9 @@ return [
         App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        App\Uc\UcServiceProvider::class,
+        App\Libraries\LoginHashes\LoginHashesServiceProvider::class,
+        App\Libraries\LoginHashes\Passwords\PasswordResetServiceProvider::class,
+        App\Libraries\SignToken\SignTokenServiceProvider::class,
 
     ],
 

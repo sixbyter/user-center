@@ -1,6 +1,6 @@
 <?php
 
-use App\Api\IHelper;
+use App\Libraries\Api\IHelper;
 use App\User;
 
 class SignUpTest extends TestCase
