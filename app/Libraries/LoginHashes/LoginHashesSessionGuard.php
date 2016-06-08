@@ -16,6 +16,9 @@ use Illuminate\Support\Str;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Illuminate\Auth\Events\Logout as LogoutEvent;
+use Illuminate\Auth\Events\Attempting as AttemptingEvent;
+use Illuminate\Auth\Events\Login as LoginEvent;
 
 class LoginHashesSessionGuard implements StatefulGuard, SupportsBasicAuth
 {
@@ -450,7 +453,7 @@ class LoginHashesSessionGuard implements StatefulGuard, SupportsBasicAuth
     protected function fireAttemptEvent(array $credentials, $remember, $login)
     {
         if (isset($this->events)) {
-            $this->events->fire(new \Illuminate\Auth\Events\Attempting(
+            $this->events->fire(new AttemptingEvent(
                 $credentials, $remember, $login
             ));
         }
@@ -465,7 +468,7 @@ class LoginHashesSessionGuard implements StatefulGuard, SupportsBasicAuth
     public function attempting($callback)
     {
         if (isset($this->events)) {
-            $this->events->listen(\Illuminate\Auth\Events\Attempting::class, $callback);
+            $this->events->listen(AttemptingEvent::class, $callback);
         }
     }
 
@@ -509,7 +512,7 @@ class LoginHashesSessionGuard implements StatefulGuard, SupportsBasicAuth
     protected function fireLoginEvent($user, $remember = false)
     {
         if (isset($this->events)) {
-            $this->events->fire(new \Illuminate\Auth\Events\Login($user, $remember));
+            $this->events->fire(new LoginEvent($user, $remember));
         }
     }
 
@@ -603,7 +606,7 @@ class LoginHashesSessionGuard implements StatefulGuard, SupportsBasicAuth
         }
 
         if (isset($this->events)) {
-            $this->events->fire(new \Illuminate\Auth\Events\Logout($user));
+            $this->events->fire(new LogoutEvent($user));
         }
 
         // Once we have fired the logout event we will clear the users out of memory

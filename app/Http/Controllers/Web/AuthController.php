@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Web;
 
 use App\User;
 use Validator;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\WebController;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
+use App\Events\Register;
 
-class AuthController extends Controller
+class AuthController extends WebController
 {
     /*
     |--------------------------------------------------------------------------
@@ -50,11 +51,13 @@ class AuthController extends Controller
      */
     protected function validator(array $data)
     {
+
         return Validator::make($data, [
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
+            'account'  => 'required|account|account_unique',
             'password' => 'required|min:6|confirmed',
+            'nickname' => 'required|max:50',
         ]);
+
     }
 
     /**
@@ -65,10 +68,20 @@ class AuthController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-        ]);
+        $account_flag = get_acount_type($data['account']);
+
+        // 创建新用户.
+        $new_user = [
+            'password'    => bcrypt($data['password']),
+            $account_flag => $data['account'],
+        ];
+
+        $user = User::create($new_user);
+
+        // 触发一个发邮件的事件
+        
+        event(new Register($user));
+
+        return $user;
     }
 }

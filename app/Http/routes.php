@@ -61,26 +61,56 @@ Route::group(['middleware' => ['api'], 'prefix' => 'api1'], function () {
 });
 
 Route::group(['middleware' => 'web'], function () {
-    // Authentication Routes...
-    Route::get('login', 'Auth\AuthController@showLoginForm');
-    Route::post('login', 'Auth\AuthController@login');
-    Route::get('logout', 'Auth\AuthController@logout');
 
-    // Registration Routes...
-    Route::get('register', 'Auth\AuthController@showRegistrationForm');
-    Route::post('register', 'Auth\AuthController@register');
+    Route::get('login', [
+        'as'   => 'web.login.form',
+        'uses' => 'Web\AuthController@showLoginForm',
+    ]);
 
-    Route::post('password/reset', 'Auth\PasswordController@reset');
+    Route::post('login', [
+        'as'   => 'web.login.post',
+        'uses' => 'Web\AuthController@login',
+    ]);
+    Route::get('logout', 'Web\AuthController@logout');
 
-    Route::get('password/reset/{from}', 'Auth\PasswordController@showResetForm');
+    Route::get('register', [
+        'as'   => 'web.register.form',
+        'uses' => 'Web\AuthController@showRegistrationForm',
+    ]);
+    Route::post('register', [
+        'as'   => 'web.register.post',
+        'uses' => 'Web\AuthController@register',
+    ]);
 
-    Route::get('password/forgot', 'Auth\PasswordController@showForgotForm');
+    Route::get('password/reset/{from}', [
+        'as'   => 'web.reset.form',
+        'uses' => 'Web\PasswordController@showResetForm',
+    ]);
 
-    Route::post('password/forgot', 'Auth\PasswordController@forgot');
+    Route::post('password/reset', [
+        'as'   => 'web.reset.post',
+        'uses' => 'Web\PasswordController@reset',
+    ]);
 
-    Route::get('/password/verifyoldpassword', 'Auth\PasswordController@getVerifyOldPassWord');
-    Route::post('/password/verifyoldpassword', 'Auth\PasswordController@postVerifyOldPassWord');
+    Route::get('password/forgot', [
+        'as'   => 'web.forgot.form',
+        'uses' => 'Web\PasswordController@showForgotForm',
+    ]);
 
-    Route::get('/home', 'HomeController@index');
-    Route::get('/', 'HomeController@index');
+    Route::post('password/forgot', [
+        'as'   => 'web.forgot.post',
+        'uses' => 'Web\PasswordController@forgot',
+    ]);
+
+    Route::get('/password/verifyoldpassword', [
+        'as'   => 'web.verifyoldpassword.form',
+        'uses' => 'Web\PasswordController@getVerifyOldPassWord',
+    ]);
+    Route::post('/password/verifyoldpassword', [
+        'as'   => 'web.verifyoldpassword.post',
+        'uses' => 'Web\PasswordController@postVerifyOldPassWord',
+    ]);
+
+    Route::get('/home', 'Web\HomeController@index');
+    Route::get('/', 'Web\HomeController@index');
 });

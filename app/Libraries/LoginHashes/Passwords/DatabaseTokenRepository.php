@@ -78,6 +78,9 @@ class DatabaseTokenRepository implements TokenRepositoryInterface
 
     public function getCredentials(CanResetPasswordContract $user, $from = 'email')
     {
+        $credentials = [
+            'from' => 'oh-no',
+        ];
         if ($from === 'email') {
             $credentials = [
                 'from' => $user->getEmailForPasswordReset(),

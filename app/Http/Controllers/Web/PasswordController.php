@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Web;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\WebController;
 use App\Libraries\LoginHashes\Passwords\EmailForgot;
 use App\Libraries\LoginHashes\Passwords\TelForgot;
 use Auth;
 use Illuminate\Http\Request;
 use Password;
 
-class PasswordController extends Controller
+class PasswordController extends WebController
 {
 
     use EmailForgot, TelForgot;
@@ -241,6 +241,28 @@ class PasswordController extends Controller
     protected function getGuard()
     {
         return property_exists($this, 'guard') ? $this->guard : null;
+    }
+
+    /**
+     * Get the response for after the reset link has been successfully sent.
+     *
+     * @param  string  $response
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function getSendResetLinkEmailSuccessResponse($response)
+    {
+        return redirect()->back()->with('status', trans($response));
+    }
+
+    /**
+     * Get the response for after the reset link could not be sent.
+     *
+     * @param  string  $response
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function getSendResetLinkEmailFailureResponse($response)
+    {
+        return redirect()->back()->withErrors(['account' => trans($response)]);
     }
 
 }
